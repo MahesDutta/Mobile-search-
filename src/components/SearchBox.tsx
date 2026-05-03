@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import AboutModal from "./AboutModal";
 import RemoveDataModal from "./RemoveDataModal";
 import InstallPWAButton from "./InstallPWAButton";
-import { Turnstile } from '@marsidev/react-turnstile';
 import { motion } from "framer-motion";
 
 interface SearchBoxProps {
@@ -59,7 +58,7 @@ export default function SearchBox({ onSearch, isLoading = false }: SearchBoxProp
         }
 
         if (!token) {
-            setError("Please complete the verification check.");
+            setError("Please check the agreement box.");
             return;
         }
 
@@ -142,17 +141,25 @@ export default function SearchBox({ onSearch, isLoading = false }: SearchBoxProp
                         </button>
                     </div>
 
-                    {/* Turnstile Widget */}
-                    <div className="flex justify-center my-2">
-                        <Turnstile
-                            siteKey="0x4AAAAAACFVodwOjSj0q1X0"
-                            options={{ theme: 'light' }}
-                            onSuccess={(token) => {
-                                setToken(token);
-                                setError("");
+                    {/* Simple Verification Checkbox */}
+                    <div className="flex items-center gap-2 my-4 px-2">
+                        <input
+                            type="checkbox"
+                            id="verify"
+                            checked={token ? true : false}
+                            onChange={(e) => {
+                                if (e.target.checked) {
+                                    setToken("verified");
+                                    setError("");
+                                } else {
+                                    setToken(null);
+                                }
                             }}
-                            onError={() => setError("Verification failed. Please try again.")}
+                            className="w-4 h-4 cursor-pointer"
                         />
+                        <label htmlFor="verify" className="text-sm text-gray-600 cursor-pointer">
+                            I agree to the terms of service
+                        </label>
                     </div>
 
                     {/* Action Button */}
