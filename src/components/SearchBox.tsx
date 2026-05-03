@@ -93,7 +93,7 @@ export default function SearchBox({ onSearch, isLoading = false }: SearchBoxProp
     return (
         <>
             <div
-                className="fixed bottom-0 left-0 right-0 z-[1000] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.15)] px-6 py-8 md:max-w-md md:mx-auto"
+                className="w-full bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.15)] px-6 py-8"
             >
                 <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6" />
 
