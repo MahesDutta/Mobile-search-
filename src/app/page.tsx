@@ -195,11 +195,16 @@ export default function Home() {
     </div>
 
     {/* ✅ ALWAYS VISIBLE SEARCH BOX */}
-    {!isSheetOpen && !showRateLimit && (
-      <div className="fixed bottom-0 left-0 w-full z-50 p-4">
-        <SearchBox onSearch={handleSearch} isLoading={loadingStage !== 'idle'} />
-      </div>
-    )}
+    {!isSheetOpen && (
+  <div className="fixed bottom-4 left-0 w-full z-[9999] flex justify-center">
+    <div className="w-[90%] max-w-md">
+      <SearchBox
+        onSearch={handleSearch}
+        isLoading={loadingStage !== 'idle'}
+      />
+    </div>
+  </div>
+)}
 
     {/* Loading Animations */}
     <LoadingSteps isLoading={loadingStage === 'simple'} />
