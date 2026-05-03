@@ -44,7 +44,7 @@ export default function MapBackground({ result }: MapBackgroundProps) {
     }
 
     return (
-        <div className="absolute inset-0 h-full w-full z-0">
+            <div className="absolute inset-0 h-full w-full z-0 pointer-events-none">
             <Map center={center} zoom={zoom} markerPosition={markerPosition} locationName={locationName} />
         </div>
     );
