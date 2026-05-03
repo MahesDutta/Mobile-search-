@@ -186,59 +186,52 @@ export default function Home() {
             setLoadingStage('idle');
         }
     };
-
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-gray-50 text-gray-900">
+  <div className="relative min-h-screen w-full overflow-hidden bg-gray-50 text-gray-900">
 
-            {/* Background Map - Full Screen */}
-            <div className="absolute inset-0 z-0">
-                <MapBackground result={result} />
-            </div>
+    {/* Background Map */}
+    <div className="absolute inset-0 z-0">
+      <MapBackground result={result} />
+    </div>
 
-            {/* Search Layout */}
-            {/* If result sheet is NOT open and NOT loading/zooming, show SearchBox */}
-            {/* We only show SearchBox when truly IDLE and Sheet is CLOSED */}
-            {!isSheetOpen && loadingStage === 'idle' && !showRateLimit && (
-                <div className="relative z-10 h-full">
-                    {/* The SearchBox is now fixed bottom, so we just render it. */}
-                    <SearchBox onSearch={handleSearch} isLoading={false} />
-                </div>
-            )}
+    {/* ✅ ALWAYS VISIBLE SEARCH BOX */}
+    {!isSheetOpen && !showRateLimit && (
+      <div className="fixed bottom-0 left-0 w-full z-50 p-4">
+        <SearchBox onSearch={handleSearch} isLoading={loadingStage !== 'idle'} />
+      </div>
+    )}
 
-            {/* Loading Animations */}
-            {/* Simple Loading Steps */}
-            <LoadingSteps isLoading={loadingStage === 'simple'} />
+    {/* Loading Animations */}
+    <LoadingSteps isLoading={loadingStage === 'simple'} />
+    <DeepSearchTerminal isActive={loadingStage === 'deep'} />
 
-            {/* Deep Search Terminal */}
-            <DeepSearchTerminal isActive={loadingStage === 'deep'} />
+    {/* Result Sheet */}
+    <AnimatePresence>
+      {isSheetOpen && result && (
+        <ResultSheet
+          data={result}
+          onClose={() => {
+            setIsSheetOpen(false);
+            setResult(null);
+            setLoadingStage('idle');
+          }}
+        />
+      )}
+    </AnimatePresence>
 
-            {/* Result Sheet */}
-            <AnimatePresence>
-                {isSheetOpen && result && (
-                    <ResultSheet
-                        data={result}
-                        onClose={() => {
-                            setIsSheetOpen(false);
-                            setResult(null); // This clears the result, causing MapBackground to revert to default center/zoom, triggering smooth flyTo
-                            setLoadingStage('idle');
-                        }}
-                    />
-                )}
-            </AnimatePresence>
+    {/* Rate Limit */}
+    <AnimatePresence>
+      {showRateLimit && <RateLimitPanel />}
+    </AnimatePresence>
 
-            {/* Rate Limit Panel */}
-            <AnimatePresence>
-                {showRateLimit && (
-                    <RateLimitPanel />
-                )}
-            </AnimatePresence>
+    {/* Error */}
+    <ErrorModal
+      isOpen={showError}
+      onClose={() => setShowError(false)}
+      message={errorMessage}
+    />
 
-            <ErrorModal
-                isOpen={showError}
-                onClose={() => setShowError(false)}
-                message={errorMessage}
-            />
+  </div>
+);
 
-        </div>
-    );
-}
+    
