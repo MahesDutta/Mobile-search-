@@ -20,23 +20,33 @@ export async function checkDataLeak(
       `${process.env.DEHASHED_EMAIL}:${process.env.DEHASHED_KEY}`
     ).toString("base64");
 
-    let searchQuery = type === "email"
-      ? `email:${query}`
-      : `phone:${query}`;
+    const searchQuery =
+      type === "email" ? `email:${query}` : `phone:${query}`;
+
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 10000);
 
     const res = await fetch(
       `https://api.dehashed.com/v2/search?query=${encodeURIComponent(searchQuery)}`,
       {
         method: "GET",
         headers: {
-          "Authorization": `Basic ${auth}`
-        }
+          Authorization: `Basic ${auth}`
+        },
+        signal: controller.signal
       }
     );
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch {
+      return {
+        status: "error",
+        message: "Invalid API response"
+      };
+    }
 
-    // 🔍 Debug (remove later if needed)
     console.log("DeHashed Response:", data);
 
     if (!res.ok) {
@@ -65,9 +75,10 @@ export async function checkDataLeak(
 
   } catch (error) {
     console.error("DeHashed Error:", error);
+
     return {
       status: "error",
-      message: "Something went wrong"
+      message: "Request failed or timed out"
     };
   }
 }
