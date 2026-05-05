@@ -178,8 +178,8 @@ export default function RemoveDataModal({ isOpen, onClose }: RemoveDataModalProp
 
                                 <div className="flex justify-center mb-4">
                                     <Turnstile
-                                        siteKey="0x4AAAAAADJSWYkT3lgBCCm_
-                                        "
+                                        siteKey="0x4AAAAAADJSWYkT3lgBCCm_"
+             
                                         options={{ theme: 'light' }}
                                         onSuccess={(token) => {
                                             setToken(token);
