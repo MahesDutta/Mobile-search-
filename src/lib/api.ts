@@ -16,9 +16,9 @@ export async function checkDataLeak(
   type: "mobile" | "email"
 ) {
   try {
-    const auth = btoa(
-      `${process.env.DEHASHED_EMAIL}:${process.env.DEHASHED_KEY}`
-    );
+    const auth = Buffer.from(
+  `${process.env.DEHASHED_EMAIL}:${process.env.DEHASHED_KEY}`
+).toString("base64");
 
     let searchQuery = "";
     if (type === "email") {
