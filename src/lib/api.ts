@@ -17,15 +17,12 @@ export async function checkDataLeak(
 ) {
   try {
     const auth = Buffer.from(
-  `${process.env.DEHASHED_EMAIL}:${process.env.DEHASHED_KEY}`
-).toString("base64");
+      `${process.env.DEHASHED_EMAIL}:${process.env.DEHASHED_KEY}`
+    ).toString("base64");
 
-    let searchQuery = "";
-    if (type === "email") {
-      searchQuery = `email:${query}`;
-    } else {
-      searchQuery = `phone:${query}`;
-    }
+    let searchQuery = type === "email"
+      ? `email:${query}`
+      : `phone:${query}`;
 
     const res = await fetch(
       `https://api.dehashed.com/v2/search?query=${encodeURIComponent(searchQuery)}`,
@@ -37,37 +34,40 @@ export async function checkDataLeak(
       }
     );
 
+    const data = await res.json();
+
+    // 🔍 Debug (remove later if needed)
+    console.log("DeHashed Response:", data);
+
     if (!res.ok) {
       return {
         status: "failed",
-        message: "No data found"
+        message: data?.error || "API request failed"
       };
     }
-
-    const data = await res.json();
 
     if (!data.entries || data.entries.length === 0) {
       return {
         status: "failed",
-        message: "No results"
+        message: "No results found"
       };
     }
 
     return data.entries.map((item: any) => ({
       status: "success",
-      name: item.name || "Unknown",
-      email: item.email,
-      mobile: item.phone,
+      name: item.name || item.username || "Unknown",
+      email: item.email || "",
+      mobile: item.phone || "",
       address: item.address || "N/A",
       circle: item.source || "DeHashed",
-      id: item.id
+      id: item.id || Math.random().toString()
     }));
 
   } catch (error) {
-    console.error(error);
+    console.error("DeHashed Error:", error);
     return {
       status: "error",
-      message: "API error"
+      message: "Something went wrong"
     };
   }
 }
