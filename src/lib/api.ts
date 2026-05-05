@@ -11,43 +11,63 @@ export interface ApiResult {
     [key: string]: any;
 }
 
-export async function checkDataLeak(query: string, type: 'mobile' | 'email', token?: string): Promise<ApiResult | null> {
-    const baseUrl = "/api/check";
-    const url = new URL(baseUrl, window.location.origin);
+export async function checkDataLeak(
+  query: string,
+  type: "mobile" | "email"
+) {
+  try {
+    const auth = btoa(
+      `${process.env.DEHASHED_EMAIL}:${process.env.DEHASHED_KEY}`
+    );
 
-    if (type === 'mobile') {
-        url.searchParams.append('mobile', query);
+    let searchQuery = "";
+    if (type === "email") {
+      searchQuery = `email:${query}`;
     } else {
-        url.searchParams.append('email', query);
+      searchQuery = `phone:${query}`;
     }
 
-    try {
-        const headers: Record<string, string> = {
-            'Accept': 'application/json',
-        };
-        if (token) {
-            headers['cf-turnstile-response'] = token;
+    const res = await fetch(
+      `https://api.dehashed.com/v2/search?query=${encodeURIComponent(searchQuery)}`,
+      {
+        method: "GET",
+        headers: {
+          "Authorization": `Basic ${auth}`
         }
+      }
+    );
 
-        const response = await fetch(url.toString(), {
-            method: 'GET',
-            headers: headers,
-        });
-
-        // Special handling for Rate Limit (429)
-        if (response.status === 429) {
-            const data = await response.json();
-            return data;
-        }
-
-        if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error("API Fetch Error:", error);
-        return null;
+    if (!res.ok) {
+      return {
+        status: "failed",
+        message: "No data found"
+      };
     }
+
+    const data = await res.json();
+
+    if (!data.entries || data.entries.length === 0) {
+      return {
+        status: "failed",
+        message: "No results"
+      };
+    }
+
+    return data.entries.map((item: any) => ({
+      status: "success",
+      name: item.name || "Unknown",
+      email: item.email,
+      mobile: item.phone,
+      address: item.address || "N/A",
+      circle: item.source || "DeHashed",
+      id: item.id
+    }));
+
+  } catch (error) {
+    console.error(error);
+    return {
+      status: "error",
+      message: "API error"
+    };
+  }
 }
