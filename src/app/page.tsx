@@ -45,7 +45,7 @@ export default function Home() {
         }, 7000);
 
         try {
-            const apiData = await checkDataLeak(query, type, token);
+            const apiData = await checkDataLeak(query, type);
 
             // Check for Rate Limit Response
             if (apiData && apiData.rateLimit) {
